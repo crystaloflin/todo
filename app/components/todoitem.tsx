@@ -16,11 +16,11 @@ type Props = {
 
 export function TodoItem({ todo, onToggleAction, onDeleteAction }: Props) {
   return (
-    <li className="flex items-center justify-between py-2 border-b border-gray-200 hover:bg-gray-50">
+    <li className="flex text-zinc-200 items-center justify-between p-4 border-b border-zinc-800 hover:bg-zinc-800">
       <span
         onClick={() => onToggleAction(todo.id)}
         className={`cursor-pointer flex-1 ${
-          todo.done ? "line-through text-gray-400" : ""
+          todo.done ? "line-through text-zinc-600" : ""
         }`}
       >
         {todo.text}

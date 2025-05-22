@@ -47,19 +47,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-xl mx-auto bg-white shadow-md rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-4">Todo App</h1>
+    <div className="min-h-screen bg-zinc-950 py-10 px-4">
+      <div className="max-w-xl mx-auto bg-zinc-900 shadow-2xl rounded-3xl p-6">
+        <h1 className="text-5xl font-bold mt-4 mb-8 text-zinc-700">Things</h1>
         <form onSubmit={addTodo} className="flex gap-2">
           <input
             value={input}
             onChange={handleInputChange}
             placeholder="What do you need to do?"
-            className="flex-1 border border-gray-300 rounded px-3 py-2"
+            className="text-lg flex-1 text-zinc-500 border border-gray-300 rounded-xl px-3 py-2"
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-zinc-300 text-zinc-950 px-4 py-2 rounded-xl hover:bg-zinc-400"
           >
             Add
           </button>
