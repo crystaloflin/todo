@@ -1,8 +1,0 @@
-{
-  "projects": [
-    {
-      "src": "todo/",
-      "use": "@vercel/next"
-    }
-  ]
-}
