@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 type Todo = {
   id: number;
@@ -16,14 +17,22 @@ type Props = {
 
 export function TodoItem({ todo, onToggleAction, onDeleteAction }: Props) {
   return (
-    <li className="flex text-zinc-200 items-center justify-between p-4 border-b border-zinc-800 hover:bg-zinc-800">
+    <motion.li
+      layout // optional: adds layout animations
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95, x: 20 }}
+      transition={{ duration: 0.3 }}
+      className="flex text-zinc-200 items-center justify-between p-4 border-b border-zinc-800 hover:bg-zinc-800"
+    >
       <span
         onClick={() => onToggleAction(todo.id)}
-        className={`cursor-pointer flex-1 ${
-          todo.done ? "line-through text-zinc-600" : ""
-        }`}
+        className="cursor-pointer flex-1 flex items-center gap-2"
       >
-        {todo.text}
+        {todo.done && <span>✅</span>}
+        <span className={todo.done ? "line-through text-zinc-600" : ""}>
+          {todo.text}
+        </span>
       </span>
       <button
         onClick={() => onDeleteAction(todo.id)}
@@ -32,6 +41,6 @@ export function TodoItem({ todo, onToggleAction, onDeleteAction }: Props) {
       >
         <Trash2 size={18} />
       </button>
-    </li>
+    </motion.li>
   );
 }

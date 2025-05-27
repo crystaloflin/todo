@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import { TodoItem } from "./components/todoitem";
 import { supabase, Todo } from "./utils/supabase";
+import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -65,14 +66,16 @@ export default function Home() {
           </button>
         </form>
         <ul className="mt-4">
-          {todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggleAction={toggleTodo}
-              onDeleteAction={deleteTodo}
-            />
-          ))}
+          <AnimatePresence>
+            {todos.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                onToggleAction={toggleTodo}
+                onDeleteAction={deleteTodo}
+              />
+            ))}
+          </AnimatePresence>
         </ul>
       </div>
     </div>
