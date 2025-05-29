@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import { supabase, Todo, UUID } from "./utils/supabase";
 import { TodoItem } from "./components/todoitem";
