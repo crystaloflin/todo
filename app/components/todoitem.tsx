@@ -2,17 +2,12 @@
 
 import { Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-
-type Todo = {
-  id: number;
-  text: string;
-  done: boolean;
-};
+import { Todo, UUID } from "../utils/supabase"; // Adjust path as needed
 
 type Props = {
-  todo: Todo;
-  onToggleAction: (id: number) => void;
-  onDeleteAction: (id: number) => void;
+  todo: Pick<Todo, "id" | "text" | "done">;
+  onToggleAction: (id: UUID) => void;
+  onDeleteAction: (id: UUID) => void;
 };
 
 export function TodoItem({ todo, onToggleAction, onDeleteAction }: Props) {

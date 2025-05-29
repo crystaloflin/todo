@@ -1,81 +1,111 @@
 "use client";
 
 import { useEffect, useState, FormEvent, ChangeEvent } from "react";
+import { supabase, Todo, UUID } from "./utils/supabase";
 import { TodoItem } from "./components/todoitem";
-import { supabase, Todo } from "./utils/supabase";
-import { AnimatePresence } from "framer-motion";
+import { AuthForm } from "./components/auth";
+import type { User } from "@supabase/supabase-js";
 
 export default function Home() {
+  const [user, setUser] = useState<User | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [input, setInput] = useState<string>("");
+  const [input, setInput] = useState("");
 
   useEffect(() => {
-    supabase
-      .from()
-      .select()
-      .then((res) => {
-        if (!res.error) setTodos(res.data);
-      });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) fetchTodos();
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) {
+        setUser(data.session.user);
+        fetchTodos();
+      }
+    });
   }, []);
+
+  async function fetchTodos() {
+    const { data, error } = await supabase
+      .from<"todos", Todo>("todos")
+      .select("*")
+      .order("inserted_at", { ascending: true });
+    if (!error) setTodos(data);
+  }
 
   async function addTodo(e: FormEvent) {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || !user) return;
 
-    const { data: newTodo } = await supabase
-      .from()
-      .insert({ text: input.trim() });
-    setTodos((prev) => [...prev, newTodo]);
-    setInput("");
+    const { data, error } = await supabase
+      .from("todos") // ✅ No type arguments here
+      .insert([{ text: input.trim(), user_id: user.id }])
+      .select()
+      .single();
+
+    if (!error && data) {
+      setTodos((prev) => [...prev, data as Todo]);
+      setInput("");
+    }
   }
 
-  function toggleTodo(id: number) {
-    const updated = todos.map((todo) =>
-      todo.id === id ? { ...todo, done: !todo.done } : todo,
+  async function toggleTodo(id: UUID, done: boolean) {
+    const { error } = await supabase
+      .from("todos") // ✅ no type arguments
+      .update({ done: !done })
+      .eq("id", id);
+
+    if (!error) {
+      setTodos((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, done: !done } : t)),
+      );
+    }
+  }
+
+  async function deleteTodo(id: UUID) {
+    const { error } = await supabase.from("todos").delete().eq("id", id);
+
+    if (!error) {
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <AuthForm />
+      </div>
     );
-    setTodos(updated);
-    supabase.from().update({ id, done: !todos.find((t) => t.id === id)?.done });
-  }
-
-  function deleteTodo(id: number) {
-    const updated = todos.filter((todo) => todo.id !== id);
-    setTodos(updated);
-    supabase.from().delete(id);
-  }
-
-  function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
-    setInput(e.target.value);
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 py-10 px-4">
-      <div className="max-w-xl mx-auto bg-zinc-900 shadow-2xl rounded-3xl p-6">
-        <h1 className="text-5xl font-bold mt-4 mb-8 text-zinc-700">Things</h1>
-        <form onSubmit={addTodo} className="flex gap-2">
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-xl mx-auto bg-white shadow rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-4">Todo App</h1>
+        <form onSubmit={addTodo} className="flex gap-2 mb-4">
           <input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setInput(e.target.value)
+            }
             placeholder="What do you need to do?"
-            className="text-lg flex-1 text-zinc-500 border border-gray-300 rounded-xl px-3 py-2"
+            className="flex-1 border border-gray-300 rounded px-3 py-2"
           />
           <button
             type="submit"
-            className="bg-zinc-300 text-zinc-950 px-4 py-2 rounded-xl hover:bg-zinc-400"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Add
           </button>
         </form>
-        <ul className="mt-4">
-          <AnimatePresence>
-            {todos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onToggleAction={toggleTodo}
-                onDeleteAction={deleteTodo}
-              />
-            ))}
-          </AnimatePresence>
+        <ul className="space-y-2">
+          {todos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggleAction={() => toggleTodo(todo.id, todo.done)}
+              onDeleteAction={() => deleteTodo(todo.id)}
+            />
+          ))}
         </ul>
       </div>
     </div>
