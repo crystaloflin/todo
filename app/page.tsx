@@ -26,6 +26,7 @@ export default function Home() {
     });
   }, []);
 
+  // fetch todos
   async function fetchTodos() {
     const { data, error } = await supabase
       .from<"todos", Todo>("todos")
